@@ -1,0 +1,90 @@
+# Abilities Plugin for CakePHP
+
+Abilities is a (very) simple authorization plugin inspired by [CanCan](https://github.com/ryanb/cancan).
+
+## Installation
+
+* Clone/Copy plugin files files into `app/plugins/abilities`
+* Include the ability component in your `app_controller.php`:
+   * `public $components = array('Abilities.Ability');`
+* Create `app_ability.php` in your app folder
+
+Also, your AppController must respond to 'currentUser()'. I.e.:
+
+	public function currentUser() {
+		return $this->User->findById($this->Auth->user('id'));
+	}
+
+
+## Define abilities
+
+In your newly created `app_abiliy.php` define it like that:
+
+	App::import('Lib', 'Abilities.Ability');
+
+	class AppAbility extends Ability {
+
+		public function __construct($user) {
+			parent::__construct($user);
+
+			# allow everybody to comment
+			$this->allow('create', 'Comment');
+
+			if (empty($user)) {
+				# guest
+			} else {
+				# some authenticated user
+
+				# allow any authenticated user to create posts
+				$this->allow('create', 'Post');
+
+				if ($user['User']['role'] == 'admin') {
+					# allow admins to do anything
+					$this->allow('manage', 'all');
+				} else {
+					# allow users to edit their profiles. condition is an expression to call with Set::matches
+					$this->allow('update', 'User', "/User[id={$user['User']['id']}]");
+
+					# ... and their posts. condition is a callback
+					$this->allow('update', 'Post', array($this, 'checkPostAuthor'), true);
+				}
+			}
+		}
+
+		public function checkPostAuthor($post) {
+			return ($post['Post']['user_id'] == $this->user['User']['id']);
+		}
+
+	}
+
+## Check abilities
+
+In a view:
+
+	<?php if ($this->Ability->check('create', 'Post')): ?>
+		<?php echo $this->Html->link('New Post', array('action' => 'add')); ?>
+	<?php endif; ?>
+	...
+	<?php if ($this->Ability->check('update', 'Post', $post)): ?>
+		<?php echo $this->Html->link('Edit', array('action' => 'edit', $post['Post']['id'])); ?>
+	<?php endif; ?>
+
+In a controller:
+
+	function edit($id = null) {	
+		$post = $this->Post->read(null, $id);		
+		$this->Ability->authorize('update', 'Post', $post);
+		...
+	}
+
+This will raise an exception if the user is not allowed to perform the given action.
+Alternatively, you can set up an error handler. In the AppController:
+
+	public function beforeFilter() {		
+		$this->Ability->setErrorHandler(array($this, 'onNotAbleError'));
+	}
+	
+	public function onNotAbleError() {
+		$this->Session->setFlash('You are not welcome here');
+		$this->redirect('/');
+	}
