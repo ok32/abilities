@@ -5,7 +5,7 @@
  *
  */
 
-require 'rule.php';
+App::uses('Rule', 'Abilities.Lib');
 
 class Ability {
 	
