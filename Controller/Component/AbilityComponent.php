@@ -10,9 +10,9 @@
  * @copyright ok32
  **/
 
-require APP . DS . 'app_ability.php';
+require APP . DS . 'Lib' . DS . 'AppAbility.php';
 
-class AbilityComponent extends Object {
+class AbilityComponent extends Component {
 	
 	private $controller = null;
 	
@@ -24,7 +24,7 @@ class AbilityComponent extends Object {
 	 *
 	 *
 	 */
-	public function initialize(&$controller, $settings = array()) {
+	public function initialize($controller, $settings = array()) {
 		$this->controller = $controller;
 		ClassRegistry::addObject(
 			$this->appAbilityClassName,

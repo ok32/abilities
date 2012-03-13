@@ -1,15 +1,17 @@
-# Abilities Plugin for CakePHP
+# Abilities Plugin for CakePHP 2.x
 
 Abilities is a (very) simple authorization plugin inspired by [CanCan](https://github.com/ryanb/cancan).
 
+If you are looking for 1.3 version check `1.3` branch.
+
 ## Installation
 
-* Clone/Copy plugin files files into `app/plugins/abilities`
-* Include the ability component in your `app_controller.php`:
+* Clone/Copy plugin files files into `app/Plugin/Abilities`
+* Include the ability component in your `AppController.php`:
    * `public $components = array('Abilities.Ability');`
-* Create `app_ability.php` in your app folder
+* Create `AppAbility.php` in your `app/Lib` folder
 
-Also, your AppController must respond to 'currentUser()'. I.e.:
+Also, your AppController must respond to `currentUser()`. I.e.:
 
 	public function currentUser() {
 		return $this->User->findById($this->Auth->user('id'));
@@ -18,7 +20,7 @@ Also, your AppController must respond to 'currentUser()'. I.e.:
 
 ## Define abilities
 
-In your newly created `app_abiliy.php` define it like that:
+In your newly created `AppAbiliy.php` define it like that:
 
 	App::import('Lib', 'Abilities.Ability');
 
